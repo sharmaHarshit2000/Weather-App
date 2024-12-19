@@ -130,11 +130,32 @@ function showError(message, type) {
   errorMessageDiv.style.display = "block";
 }
 
+// Add city to recent searches
+function addToRecentSearches(city) {
+  if (!recentSearches.includes(city)) {
+    recentSearches.push(city);
+    localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+    updateRecentSearchDropdown();
+  }
+}
+
+// Update recent search dropdown
+function updateRecentSearchDropdown() {
+  recentDropdown.innerHTML = '<option value="">-- Recent Searches --</option>';
+  recentSearches.forEach((city) => {
+    const option = document.createElement("option");
+    option.value = city;
+    option.textContent = city;
+    recentDropdown.appendChild(option);
+  });
+}
+
 // Event Listeners
 document.getElementById("search-btn").addEventListener("click", () => {
   const city = document.getElementById("city-input").value.trim();
   if (city) {
     fetchWeather(city);
+    addToRecentSearches(city);
   } else {
     // If the user enters an empty city name
     currentWeatherDiv.style.display = "none";
@@ -156,8 +177,20 @@ document
           if (data) {
             const city = data.name;
             fetchWeather(city);
+            addToRecentSearches(city);
           }
         });
       });
     }
   });
+
+// Handle recent search selection
+recentDropdown.addEventListener("change", (e) => {
+  const city = e.target.value;
+  if (city) {
+    fetchWeather(city);
+  }
+});
+
+// Initial Update for Recent Searches Dropdown
+updateRecentSearchDropdown();
