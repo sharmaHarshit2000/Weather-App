@@ -1,2 +1,4 @@
-# Weather-App
-The Weather App is a simple and user-friendly web application that provides real-time weather updates and a 5-day forecast for any city worldwide. Users can search for weather data by entering a city name or use their current location to fetch weather details.This app is built using HTML, CSS (Tailwind CSS), and JavaScript 
+# Weather App
+
+A simple and responsive weather application built using HTML, CSS, and JavaScript. This app allows users to search for current weather conditions and a 5-day forecast for a specified city. The app fetches weather data from the OpenWeatherMap API.
+
