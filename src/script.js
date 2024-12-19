@@ -48,6 +48,43 @@ function displayCurrentWeather(data) {
   document.getElementById("weather-icon").src = iconUrl;
 }
 
+// Display 5-day forecast
+function displayForecast(data) {
+  forecastDiv.innerHTML = ""; // Clear previous forecast
+  const forecastByDays = data.list.filter((_, index) => index % 8 === 0); // Filter out every 8th item for the 5-day forecast
+
+  // Show the heading once forecast data is loaded
+  forecastHeading.style.display = "block";
+  forecastDiv.style.display = "grid"; // Ensure forecast grid is displayed
+
+  forecastByDays.forEach((forecast) => {
+    const { dt_txt, main, weather, wind } = forecast;
+    const iconUrl = `https://openweathermap.org/img/wn/${weather[0].icon}.png`;
+
+    const card = `
+            <div class="forecast-card bg-gray-800 text-white p-4 rounded-lg shadow-lg">
+                <p class="font-bold">${dt_txt.split(" ")[0]}</p>
+                <img src="${iconUrl}" alt="Weather Icon" class="mx-auto w-16 h-16 my-2">
+                <div class="space-y-2">
+                    <div class="forecast-detail">
+                        <p class="font-semibold">Temp:</p>
+                        <p>${main.temp}°C</p>
+                    </div>
+                    <div class="forecast-detail">
+                        <p class="font-semibold">Wind:</p>
+                        <p>${wind.speed} m/s</p>
+                    </div>
+                    <div class="forecast-detail">
+                        <p class="font-semibold">Humidity:</p>
+                        <p>${main.humidity}%</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    forecastDiv.innerHTML += card;
+  });
+}
+
 // Fetch weather for a city
 async function fetchWeather(city) {
   if (!city) {
@@ -67,11 +104,21 @@ async function fetchWeather(city) {
   forecastMessage.style.display = "none"; // Hide the default message on error
 
   const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`;
+  const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${API_KEY}`;
 
   const currentWeatherData = await fetchWeatherData(currentWeatherUrl);
   if (currentWeatherData) {
     displayCurrentWeather(currentWeatherData);
     currentWeatherDiv.style.display = "block"; // Show current weather section
+  }
+
+  const forecastData = await fetchWeatherData(forecastUrl);
+  if (forecastData) {
+    displayForecast(forecastData);
+  } else {
+    // If no forecast data is fetched, hide the forecast div
+    forecastDiv.style.display = "none";
+    forecastHeading.style.display = "none"; // Hide forecast heading on error
   }
 }
 
