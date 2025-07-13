@@ -13,7 +13,7 @@ It allows users to search for current weather and 5-day forecasts by city or cur
 
 ## 📸 Preview
 
-![Weather App Screenshot](./public/preview.jpg)
+![Weather App Screenshot](./public/preview.PNG)
 
 ---
 
