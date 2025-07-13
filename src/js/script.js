@@ -1,4 +1,3 @@
-const API_KEY = "c8a71585e1c22754e816ebdf2bc3e364";
 const currentWeatherDiv = document.getElementById("current-weather");
 const forecastDiv = document.getElementById("forecast");
 const forecastMessage = document.getElementById("forecast-message");
@@ -88,37 +87,38 @@ function displayForecast(data) {
 // Fetch weather for a city
 async function fetchWeather(city) {
   if (!city) {
-    // Clear previous weather data and show the default message when input is empty
     currentWeatherDiv.style.display = "none";
     forecastDiv.style.display = "none";
     errorMessageDiv.style.display = "none";
-    forecastMessage.style.display = "block"; // Show the default message
-    forecastHeading.style.display = "none"; // Hide forecast heading
+    forecastMessage.style.display = "block";
+    forecastHeading.style.display = "none";
     return;
   }
 
-  // Clear previous weather data and error messages
   currentWeatherDiv.style.display = "none";
   forecastDiv.style.display = "none";
   errorMessageDiv.style.display = "none";
-  forecastMessage.style.display = "none"; // Hide the default message on error
+  forecastMessage.style.display = "none";
 
   const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`;
   const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${API_KEY}`;
 
   const currentWeatherData = await fetchWeatherData(currentWeatherUrl);
-  if (currentWeatherData) {
-    displayCurrentWeather(currentWeatherData);
-    currentWeatherDiv.style.display = "block"; // Show current weather section
-  }
-
   const forecastData = await fetchWeatherData(forecastUrl);
-  if (forecastData) {
+
+  if (currentWeatherData && forecastData) {
+    displayCurrentWeather(currentWeatherData);
     displayForecast(forecastData);
+
+    currentWeatherDiv.style.display = "block";
+    forecastDiv.style.display = "grid";
+    forecastHeading.style.display = "block";
+
+    // Only add to recent if data is valid
+    addToRecentSearches(city);
   } else {
-    // If no forecast data is fetched, hide the forecast div
     forecastDiv.style.display = "none";
-    forecastHeading.style.display = "none"; // Hide forecast heading on error
+    forecastHeading.style.display = "none";
   }
 }
 
@@ -130,13 +130,17 @@ function showError(message, type) {
   errorMessageDiv.style.display = "block";
 }
 
-// Add city to recent searches
+// Add Recent Search
 function addToRecentSearches(city) {
-  if (!recentSearches.includes(city)) {
-    recentSearches.push(city);
-    localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
-    updateRecentSearchDropdown();
+  recentSearches = recentSearches.filter(
+    (c) => c.toLowerCase() !== city.toLowerCase()
+  );
+  recentSearches.unshift(city);
+  if (recentSearches.length > 10) {
+    recentSearches = recentSearches.slice(0, 10);
   }
+  localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+  updateRecentSearchDropdown();
 }
 
 // Update recent search dropdown
@@ -155,7 +159,6 @@ document.getElementById("search-btn").addEventListener("click", () => {
   const city = document.getElementById("city-input").value.trim();
   if (city) {
     fetchWeather(city);
-    addToRecentSearches(city);
   } else {
     // If the user enters an empty city name
     currentWeatherDiv.style.display = "none";
@@ -177,7 +180,6 @@ document
           if (data) {
             const city = data.name;
             fetchWeather(city);
-            addToRecentSearches(city);
           }
         });
       });
